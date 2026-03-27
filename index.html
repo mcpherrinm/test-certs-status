@@ -80,17 +80,7 @@
   .badge-revoked { background: var(--red-bg);   color: var(--red); }
   .badge-error   { background: var(--red-bg);   color: var(--red); }
   .badge-none    { background: #f3f4f6; color: var(--muted); cursor: default; }
-  .open-link {
-    display: inline-flex;
-    align-items: center;
-    margin-left: 0.3em;
-    color: var(--muted);
-    font-size: 0.7rem;
-    text-decoration: none;
-    vertical-align: middle;
-  }
-  .open-link:hover { color: var(--text); }
-  .meta { color: var(--muted); font-size: 0.8rem; }
+.meta { color: var(--muted); font-size: 0.8rem; }
   .mono { font-family: ui-monospace, monospace; font-size: 0.8rem; }
    
   details.popover { display: inline; }
@@ -170,7 +160,7 @@
 </head>
 <body>
 <h1>Certificate Check Report</h1>
-<p class="subtitle">Generated 2026-03-27 20:53:27 UTC</p>
+<p class="subtitle">Generated 2026-03-27 21:03:45 UTC</p>
 <h2>prod.json</h2>
 <table>
 <thead>
@@ -192,7 +182,7 @@
     <details class="popover" id="p0-0-valid">
       <summary><span class="badge badge-valid">✅ valid</span></summary>
       <div class="pop">
-        <h4>valid.x1.test-certs.letsencrypt.org</h4>
+        <h4><a href="https://valid.x1.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.x1.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 07:41 UTC</dd>
@@ -239,13 +229,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://valid.x1.test-certs.letsencrypt.org" target="_blank" title="valid.x1.test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p0-0-expired">
       <summary><span class="badge badge-expired">⏰ expired</span></summary>
       <div class="pop">
-        <h4>expired.x1.test-certs.letsencrypt.org</h4>
+        <h4><a href="https://expired.x1.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.x1.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
           <dt>Not Before</dt><dd>2026-03-20 16:24 UTC</dd>
@@ -292,13 +281,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://expired.x1.test-certs.letsencrypt.org" target="_blank" title="expired.x1.test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p0-0-revoked">
       <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
       <div class="pop">
-        <h4>revoked.x1.test-certs.letsencrypt.org</h4>
+        <h4><a href="https://revoked.x1.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.x1.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 07:27 UTC</dd>
@@ -345,7 +333,6 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://revoked.x1.test-certs.letsencrypt.org" target="_blank" title="revoked.x1.test-certs.letsencrypt.org">&#8599;</a>
   </td>
 </tr>
 <tr>
@@ -356,7 +343,7 @@
     <details class="popover" id="p0-1-valid">
       <summary><span class="badge badge-valid">✅ valid</span></summary>
       <div class="pop">
-        <h4>valid.x2.test-certs.letsencrypt.org</h4>
+        <h4><a href="https://valid.x2.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.x2.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 07:18 UTC</dd>
@@ -403,13 +390,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://valid.x2.test-certs.letsencrypt.org" target="_blank" title="valid.x2.test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p0-1-expired">
       <summary><span class="badge badge-expired">⏰ expired</span></summary>
       <div class="pop">
-        <h4>expired.x2.test-certs.letsencrypt.org</h4>
+        <h4><a href="https://expired.x2.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.x2.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
           <dt>Not Before</dt><dd>2026-03-20 16:24 UTC</dd>
@@ -456,13 +442,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://expired.x2.test-certs.letsencrypt.org" target="_blank" title="expired.x2.test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p0-1-revoked">
       <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
       <div class="pop">
-        <h4>revoked.x2.test-certs.letsencrypt.org</h4>
+        <h4><a href="https://revoked.x2.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.x2.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 06:27 UTC</dd>
@@ -509,7 +494,6 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://revoked.x2.test-certs.letsencrypt.org" target="_blank" title="revoked.x2.test-certs.letsencrypt.org">&#8599;</a>
   </td>
 </tr>
 <tr>
@@ -520,7 +504,7 @@
     <details class="popover" id="p0-2-valid">
       <summary><span class="badge badge-valid">✅ valid</span></summary>
       <div class="pop">
-        <h4>valid.ye.test-certs.letsencrypt.org</h4>
+        <h4><a href="https://valid.ye.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.ye.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 08:04 UTC</dd>
@@ -555,13 +539,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://valid.ye.test-certs.letsencrypt.org" target="_blank" title="valid.ye.test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p0-2-expired">
       <summary><span class="badge badge-expired">⏰ expired</span></summary>
       <div class="pop">
-        <h4>expired.ye.test-certs.letsencrypt.org</h4>
+        <h4><a href="https://expired.ye.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.ye.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
           <dt>Not Before</dt><dd>2026-03-20 16:24 UTC</dd>
@@ -596,13 +579,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://expired.ye.test-certs.letsencrypt.org" target="_blank" title="expired.ye.test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p0-2-revoked">
       <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
       <div class="pop">
-        <h4>revoked.ye.test-certs.letsencrypt.org</h4>
+        <h4><a href="https://revoked.ye.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.ye.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 06:26 UTC</dd>
@@ -637,7 +619,6 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://revoked.ye.test-certs.letsencrypt.org" target="_blank" title="revoked.ye.test-certs.letsencrypt.org">&#8599;</a>
   </td>
 </tr>
 <tr>
@@ -648,7 +629,7 @@
     <details class="popover" id="p0-3-valid">
       <summary><span class="badge badge-valid">✅ valid</span></summary>
       <div class="pop">
-        <h4>valid.yr.test-certs.letsencrypt.org</h4>
+        <h4><a href="https://valid.yr.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.yr.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 11:10 UTC</dd>
@@ -683,13 +664,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://valid.yr.test-certs.letsencrypt.org" target="_blank" title="valid.yr.test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p0-3-expired">
       <summary><span class="badge badge-expired">⏰ expired</span></summary>
       <div class="pop">
-        <h4>expired.yr.test-certs.letsencrypt.org</h4>
+        <h4><a href="https://expired.yr.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.yr.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
           <dt>Not Before</dt><dd>2026-03-20 16:24 UTC</dd>
@@ -724,13 +704,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://expired.yr.test-certs.letsencrypt.org" target="_blank" title="expired.yr.test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p0-3-revoked">
       <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
       <div class="pop">
-        <h4>revoked.yr.test-certs.letsencrypt.org</h4>
+        <h4><a href="https://revoked.yr.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.yr.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 07:26 UTC</dd>
@@ -765,7 +744,6 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://revoked.yr.test-certs.letsencrypt.org" target="_blank" title="revoked.yr.test-certs.letsencrypt.org">&#8599;</a>
   </td>
 </tr>
 </tbody>
@@ -791,7 +769,7 @@
     <details class="popover" id="p1-0-valid">
       <summary><span class="badge badge-valid">✅ valid</span></summary>
       <div class="pop">
-        <h4>valid.x1.staging-test-certs.letsencrypt.org</h4>
+        <h4><a href="https://valid.x1.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.x1.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 07:47 UTC</dd>
@@ -838,13 +816,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://valid.x1.staging-test-certs.letsencrypt.org" target="_blank" title="valid.x1.staging-test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p1-0-expired">
       <summary><span class="badge badge-expired">⏰ expired</span></summary>
       <div class="pop">
-        <h4>expired.x1.staging-test-certs.letsencrypt.org</h4>
+        <h4><a href="https://expired.x1.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.x1.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
           <dt>Not Before</dt><dd>2026-03-20 16:24 UTC</dd>
@@ -891,13 +868,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://expired.x1.staging-test-certs.letsencrypt.org" target="_blank" title="expired.x1.staging-test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p1-0-revoked">
       <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
       <div class="pop">
-        <h4>revoked.x1.staging-test-certs.letsencrypt.org</h4>
+        <h4><a href="https://revoked.x1.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.x1.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 06:27 UTC</dd>
@@ -944,7 +920,6 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://revoked.x1.staging-test-certs.letsencrypt.org" target="_blank" title="revoked.x1.staging-test-certs.letsencrypt.org">&#8599;</a>
   </td>
 </tr>
 <tr>
@@ -955,7 +930,7 @@
     <details class="popover" id="p1-1-valid">
       <summary><span class="badge badge-valid">✅ valid</span></summary>
       <div class="pop">
-        <h4>valid.x2.staging-test-certs.letsencrypt.org</h4>
+        <h4><a href="https://valid.x2.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.x2.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 09:23 UTC</dd>
@@ -1002,13 +977,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://valid.x2.staging-test-certs.letsencrypt.org" target="_blank" title="valid.x2.staging-test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p1-1-expired">
       <summary><span class="badge badge-expired">⏰ expired</span></summary>
       <div class="pop">
-        <h4>expired.x2.staging-test-certs.letsencrypt.org</h4>
+        <h4><a href="https://expired.x2.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.x2.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
           <dt>Not Before</dt><dd>2026-03-20 16:24 UTC</dd>
@@ -1055,13 +1029,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://expired.x2.staging-test-certs.letsencrypt.org" target="_blank" title="expired.x2.staging-test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p1-1-revoked">
       <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
       <div class="pop">
-        <h4>revoked.x2.staging-test-certs.letsencrypt.org</h4>
+        <h4><a href="https://revoked.x2.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.x2.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 06:27 UTC</dd>
@@ -1108,7 +1081,6 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://revoked.x2.staging-test-certs.letsencrypt.org" target="_blank" title="revoked.x2.staging-test-certs.letsencrypt.org">&#8599;</a>
   </td>
 </tr>
 <tr>
@@ -1119,7 +1091,7 @@
     <details class="popover" id="p1-2-valid">
       <summary><span class="badge badge-valid">✅ valid</span></summary>
       <div class="pop">
-        <h4>valid.ye.staging-test-certs.letsencrypt.org</h4>
+        <h4><a href="https://valid.ye.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.ye.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 10:06 UTC</dd>
@@ -1154,13 +1126,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://valid.ye.staging-test-certs.letsencrypt.org" target="_blank" title="valid.ye.staging-test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p1-2-expired">
       <summary><span class="badge badge-expired">⏰ expired</span></summary>
       <div class="pop">
-        <h4>expired.ye.staging-test-certs.letsencrypt.org</h4>
+        <h4><a href="https://expired.ye.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.ye.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
           <dt>Not Before</dt><dd>2026-03-20 16:24 UTC</dd>
@@ -1195,13 +1166,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://expired.ye.staging-test-certs.letsencrypt.org" target="_blank" title="expired.ye.staging-test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p1-2-revoked">
       <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
       <div class="pop">
-        <h4>revoked.ye.staging-test-certs.letsencrypt.org</h4>
+        <h4><a href="https://revoked.ye.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.ye.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 06:27 UTC</dd>
@@ -1236,7 +1206,6 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://revoked.ye.staging-test-certs.letsencrypt.org" target="_blank" title="revoked.ye.staging-test-certs.letsencrypt.org">&#8599;</a>
   </td>
 </tr>
 <tr>
@@ -1247,7 +1216,7 @@
     <details class="popover" id="p1-3-valid">
       <summary><span class="badge badge-valid">✅ valid</span></summary>
       <div class="pop">
-        <h4>valid.yr.staging-test-certs.letsencrypt.org</h4>
+        <h4><a href="https://valid.yr.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.yr.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 06:54 UTC</dd>
@@ -1282,13 +1251,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://valid.yr.staging-test-certs.letsencrypt.org" target="_blank" title="valid.yr.staging-test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p1-3-expired">
       <summary><span class="badge badge-expired">⏰ expired</span></summary>
       <div class="pop">
-        <h4>expired.yr.staging-test-certs.letsencrypt.org</h4>
+        <h4><a href="https://expired.yr.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.yr.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
           <dt>Not Before</dt><dd>2026-03-20 17:23 UTC</dd>
@@ -1323,13 +1291,12 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://expired.yr.staging-test-certs.letsencrypt.org" target="_blank" title="expired.yr.staging-test-certs.letsencrypt.org">&#8599;</a>
   </td>
   <td class="status-cell">
     <details class="popover" id="p1-3-revoked">
       <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
       <div class="pop">
-        <h4>revoked.yr.staging-test-certs.letsencrypt.org</h4>
+        <h4><a href="https://revoked.yr.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.yr.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
           <dt>Not Before</dt><dd>2026-03-27 07:27 UTC</dd>
@@ -1364,7 +1331,6 @@
         </div>
       </div>
     </details>
-    <a class="open-link" href="https://revoked.yr.staging-test-certs.letsencrypt.org" target="_blank" title="revoked.yr.staging-test-certs.letsencrypt.org">&#8599;</a>
   </td>
 </tr>
 </tbody>
