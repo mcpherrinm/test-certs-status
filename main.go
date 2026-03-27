@@ -380,6 +380,16 @@ func renderHTML(sections []configSection) string {
   .badge-revoked { background: var(--red-bg);   color: var(--red); }
   .badge-error   { background: var(--red-bg);   color: var(--red); }
   .badge-none    { background: #f3f4f6; color: var(--muted); cursor: default; }
+  .open-link {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.3em;
+    color: var(--muted);
+    font-size: 0.7rem;
+    text-decoration: none;
+    vertical-align: middle;
+  }
+  .open-link:hover { color: var(--text); }
   .meta { color: var(--muted); font-size: 0.8rem; }
   .mono { font-family: ui-monospace, monospace; font-size: 0.8rem; }
   /* Popover */
@@ -520,6 +530,7 @@ func renderHTML(sections []configSection) string {
 					b.WriteString(fmt.Sprintf(`<summary><span class="badge %s">%s %s</span></summary>`, cls, emoji, escapeHTML(r.Status)))
 					renderPopover(&b, r)
 					b.WriteString(`</details>`)
+					b.WriteString(fmt.Sprintf(` <a class="open-link" href="https://%s" target="_blank" title="%s">↗</a>`, escapeHTML(r.Domain), escapeHTML(r.Domain)))
 				}
 				b.WriteString("</td>\n")
 			}
