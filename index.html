@@ -83,17 +83,20 @@
 .meta { color: var(--muted); font-size: 0.8rem; }
   .mono { font-family: ui-monospace, monospace; font-size: 0.8rem; }
    
-  details.popover { display: inline; }
-  details.popover summary { list-style: none; display: inline; }
-  details.popover summary::-webkit-details-marker { display: none; }
-  details.popover[open] .pop { display: block; }
+  .pop-trigger {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+  }
   .pop {
-    display: none;
     position: absolute;
     z-index: 10;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
+    inset: unset;
+    top: anchor(bottom);
+    left: anchor(center);
+    translate: -50% 0;
     width: 440px;
     background: var(--surface);
     border: 1px solid var(--border);
@@ -104,6 +107,7 @@
     line-height: 1.5;
     text-align: left;
     cursor: default;
+    margin: 0;
   }
   .pop h4 { margin: 0 0 0.4rem; font-size: 0.82rem; }
   .pop dl {
@@ -146,21 +150,19 @@
     }
     td.status-cell { justify-content: space-between; }
     .pop {
-      position: fixed;
-      top: 5vh;
       left: 5vw;
       right: 5vw;
       width: auto;
       max-height: 90vh;
       overflow-y: auto;
-      transform: none;
+      translate: none;
     }
   }
 </style>
 </head>
 <body>
 <h1>Certificate Check Report</h1>
-<p class="subtitle">Generated 2026-03-27 22:56:17 UTC</p>
+<p class="subtitle">Generated 2026-03-27 23:05:25 UTC</p>
 <h2>prod.json</h2>
 <table>
 <thead>
@@ -179,9 +181,8 @@
   <td data-label="Key" class="mono">rsa2048</td>
   <td data-label="Profile" class="meta">shortlived</td>
   <td class="status-cell">
-    <details class="popover" id="p0-0-valid">
-      <summary><span class="badge badge-valid">✅ valid</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p0-0-valid" style="anchor-name:--p0-0-valid"><span class="badge badge-valid">✅ valid</span></button>
+      <div class="pop" popover id="p0-0-valid" style="position-anchor:--p0-0-valid">
         <h4><a href="https://valid.x1.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.x1.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
@@ -228,12 +229,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p0-0-expired">
-      <summary><span class="badge badge-expired">⏰ expired</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p0-0-expired" style="anchor-name:--p0-0-expired"><span class="badge badge-expired">⏰ expired</span></button>
+      <div class="pop" popover id="p0-0-expired" style="position-anchor:--p0-0-expired">
         <h4><a href="https://expired.x1.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.x1.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
@@ -280,12 +279,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p0-0-revoked">
-      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p0-0-revoked" style="anchor-name:--p0-0-revoked"><span class="badge badge-revoked">🔪 revoked</span></button>
+      <div class="pop" popover id="p0-0-revoked" style="position-anchor:--p0-0-revoked">
         <h4><a href="https://revoked.x1.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.x1.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
@@ -332,7 +329,6 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
 </tr>
 <tr>
@@ -340,9 +336,8 @@
   <td data-label="Key" class="mono">p256</td>
   <td data-label="Profile" class="meta">shortlived</td>
   <td class="status-cell">
-    <details class="popover" id="p0-1-valid">
-      <summary><span class="badge badge-valid">✅ valid</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p0-1-valid" style="anchor-name:--p0-1-valid"><span class="badge badge-valid">✅ valid</span></button>
+      <div class="pop" popover id="p0-1-valid" style="position-anchor:--p0-1-valid">
         <h4><a href="https://valid.x2.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.x2.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
@@ -389,12 +384,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p0-1-expired">
-      <summary><span class="badge badge-expired">⏰ expired</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p0-1-expired" style="anchor-name:--p0-1-expired"><span class="badge badge-expired">⏰ expired</span></button>
+      <div class="pop" popover id="p0-1-expired" style="position-anchor:--p0-1-expired">
         <h4><a href="https://expired.x2.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.x2.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
@@ -441,12 +434,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p0-1-revoked">
-      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p0-1-revoked" style="anchor-name:--p0-1-revoked"><span class="badge badge-revoked">🔪 revoked</span></button>
+      <div class="pop" popover id="p0-1-revoked" style="position-anchor:--p0-1-revoked">
         <h4><a href="https://revoked.x2.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.x2.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
@@ -493,7 +484,6 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
 </tr>
 <tr>
@@ -501,9 +491,8 @@
   <td data-label="Key" class="mono">p256</td>
   <td data-label="Profile" class="meta">shortlived</td>
   <td class="status-cell">
-    <details class="popover" id="p0-2-valid">
-      <summary><span class="badge badge-valid">✅ valid</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p0-2-valid" style="anchor-name:--p0-2-valid"><span class="badge badge-valid">✅ valid</span></button>
+      <div class="pop" popover id="p0-2-valid" style="position-anchor:--p0-2-valid">
         <h4><a href="https://valid.ye.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.ye.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
@@ -538,12 +527,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p0-2-expired">
-      <summary><span class="badge badge-expired">⏰ expired</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p0-2-expired" style="anchor-name:--p0-2-expired"><span class="badge badge-expired">⏰ expired</span></button>
+      <div class="pop" popover id="p0-2-expired" style="position-anchor:--p0-2-expired">
         <h4><a href="https://expired.ye.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.ye.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
@@ -578,12 +565,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p0-2-revoked">
-      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p0-2-revoked" style="anchor-name:--p0-2-revoked"><span class="badge badge-revoked">🔪 revoked</span></button>
+      <div class="pop" popover id="p0-2-revoked" style="position-anchor:--p0-2-revoked">
         <h4><a href="https://revoked.ye.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.ye.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
@@ -618,7 +603,6 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
 </tr>
 <tr>
@@ -626,9 +610,8 @@
   <td data-label="Key" class="mono">rsa2048</td>
   <td data-label="Profile" class="meta">shortlived</td>
   <td class="status-cell">
-    <details class="popover" id="p0-3-valid">
-      <summary><span class="badge badge-valid">✅ valid</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p0-3-valid" style="anchor-name:--p0-3-valid"><span class="badge badge-valid">✅ valid</span></button>
+      <div class="pop" popover id="p0-3-valid" style="position-anchor:--p0-3-valid">
         <h4><a href="https://valid.yr.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.yr.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
@@ -663,12 +646,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p0-3-expired">
-      <summary><span class="badge badge-expired">⏰ expired</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p0-3-expired" style="anchor-name:--p0-3-expired"><span class="badge badge-expired">⏰ expired</span></button>
+      <div class="pop" popover id="p0-3-expired" style="position-anchor:--p0-3-expired">
         <h4><a href="https://expired.yr.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.yr.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
@@ -703,12 +684,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p0-3-revoked">
-      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p0-3-revoked" style="anchor-name:--p0-3-revoked"><span class="badge badge-revoked">🔪 revoked</span></button>
+      <div class="pop" popover id="p0-3-revoked" style="position-anchor:--p0-3-revoked">
         <h4><a href="https://revoked.yr.test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.yr.test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
@@ -743,7 +722,6 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
 </tr>
 </tbody>
@@ -766,9 +744,8 @@
   <td data-label="Key" class="mono">rsa2048</td>
   <td data-label="Profile" class="meta">shortlived</td>
   <td class="status-cell">
-    <details class="popover" id="p1-0-valid">
-      <summary><span class="badge badge-valid">✅ valid</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p1-0-valid" style="anchor-name:--p1-0-valid"><span class="badge badge-valid">✅ valid</span></button>
+      <div class="pop" popover id="p1-0-valid" style="position-anchor:--p1-0-valid">
         <h4><a href="https://valid.x1.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.x1.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
@@ -815,12 +792,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p1-0-expired">
-      <summary><span class="badge badge-expired">⏰ expired</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p1-0-expired" style="anchor-name:--p1-0-expired"><span class="badge badge-expired">⏰ expired</span></button>
+      <div class="pop" popover id="p1-0-expired" style="position-anchor:--p1-0-expired">
         <h4><a href="https://expired.x1.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.x1.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
@@ -867,12 +842,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p1-0-revoked">
-      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p1-0-revoked" style="anchor-name:--p1-0-revoked"><span class="badge badge-revoked">🔪 revoked</span></button>
+      <div class="pop" popover id="p1-0-revoked" style="position-anchor:--p1-0-revoked">
         <h4><a href="https://revoked.x1.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.x1.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
@@ -919,7 +892,6 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
 </tr>
 <tr>
@@ -927,9 +899,8 @@
   <td data-label="Key" class="mono">p256</td>
   <td data-label="Profile" class="meta">shortlived</td>
   <td class="status-cell">
-    <details class="popover" id="p1-1-valid">
-      <summary><span class="badge badge-valid">✅ valid</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p1-1-valid" style="anchor-name:--p1-1-valid"><span class="badge badge-valid">✅ valid</span></button>
+      <div class="pop" popover id="p1-1-valid" style="position-anchor:--p1-1-valid">
         <h4><a href="https://valid.x2.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.x2.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
@@ -976,12 +947,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p1-1-expired">
-      <summary><span class="badge badge-expired">⏰ expired</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p1-1-expired" style="anchor-name:--p1-1-expired"><span class="badge badge-expired">⏰ expired</span></button>
+      <div class="pop" popover id="p1-1-expired" style="position-anchor:--p1-1-expired">
         <h4><a href="https://expired.x2.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.x2.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
@@ -1028,12 +997,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p1-1-revoked">
-      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p1-1-revoked" style="anchor-name:--p1-1-revoked"><span class="badge badge-revoked">🔪 revoked</span></button>
+      <div class="pop" popover id="p1-1-revoked" style="position-anchor:--p1-1-revoked">
         <h4><a href="https://revoked.x2.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.x2.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
@@ -1080,7 +1047,6 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
 </tr>
 <tr>
@@ -1088,9 +1054,8 @@
   <td data-label="Key" class="mono">p256</td>
   <td data-label="Profile" class="meta">shortlived</td>
   <td class="status-cell">
-    <details class="popover" id="p1-2-valid">
-      <summary><span class="badge badge-valid">✅ valid</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p1-2-valid" style="anchor-name:--p1-2-valid"><span class="badge badge-valid">✅ valid</span></button>
+      <div class="pop" popover id="p1-2-valid" style="position-anchor:--p1-2-valid">
         <h4><a href="https://valid.ye.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.ye.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
@@ -1125,12 +1090,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p1-2-expired">
-      <summary><span class="badge badge-expired">⏰ expired</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p1-2-expired" style="anchor-name:--p1-2-expired"><span class="badge badge-expired">⏰ expired</span></button>
+      <div class="pop" popover id="p1-2-expired" style="position-anchor:--p1-2-expired">
         <h4><a href="https://expired.ye.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.ye.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
@@ -1165,12 +1128,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p1-2-revoked">
-      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p1-2-revoked" style="anchor-name:--p1-2-revoked"><span class="badge badge-revoked">🔪 revoked</span></button>
+      <div class="pop" popover id="p1-2-revoked" style="position-anchor:--p1-2-revoked">
         <h4><a href="https://revoked.ye.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.ye.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
@@ -1205,7 +1166,6 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
 </tr>
 <tr>
@@ -1213,9 +1173,8 @@
   <td data-label="Key" class="mono">rsa2048</td>
   <td data-label="Profile" class="meta">shortlived</td>
   <td class="status-cell">
-    <details class="popover" id="p1-3-valid">
-      <summary><span class="badge badge-valid">✅ valid</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p1-3-valid" style="anchor-name:--p1-3-valid"><span class="badge badge-valid">✅ valid</span></button>
+      <div class="pop" popover id="p1-3-valid" style="position-anchor:--p1-3-valid">
         <h4><a href="https://valid.yr.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">valid.yr.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is valid — correct</dd>
@@ -1250,12 +1209,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p1-3-expired">
-      <summary><span class="badge badge-expired">⏰ expired</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p1-3-expired" style="anchor-name:--p1-3-expired"><span class="badge badge-expired">⏰ expired</span></button>
+      <div class="pop" popover id="p1-3-expired" style="position-anchor:--p1-3-expired">
         <h4><a href="https://expired.yr.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">expired.yr.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is expired — correct</dd>
@@ -1290,12 +1247,10 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
   <td class="status-cell">
-    <details class="popover" id="p1-3-revoked">
-      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
-      <div class="pop">
+    <button class="pop-trigger" popovertarget="p1-3-revoked" style="anchor-name:--p1-3-revoked"><span class="badge badge-revoked">🔪 revoked</span></button>
+      <div class="pop" popover id="p1-3-revoked" style="position-anchor:--p1-3-revoked">
         <h4><a href="https://revoked.yr.staging-test-certs.letsencrypt.org" target="_blank" style="color:inherit;text-decoration:none">revoked.yr.staging-test-certs.letsencrypt.org &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
@@ -1330,7 +1285,6 @@
           </dl>
         </div>
       </div>
-    </details>
   </td>
 </tr>
 </tbody>
