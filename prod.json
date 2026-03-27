@@ -1,0 +1,49 @@
+{
+  "listenAddr": ":443",
+  "sites": [
+    {
+      "issuerCN": "ISRG Root X1",
+      "keyType": "rsa2048",
+      "profile": "shortlived",
+      "domains": {
+        "valid": "valid.x1.test-certs.letsencrypt.org",
+        "expired": "expired.x1.test-certs.letsencrypt.org",
+        "revoked": "revoked.x1.test-certs.letsencrypt.org"
+      }
+    },
+    {
+      "issuerCN": "ISRG Root X2",
+      "keyType": "p256",
+      "profile": "shortlived",
+      "domains": {
+        "valid": "valid.x2.test-certs.letsencrypt.org",
+        "expired": "expired.x2.test-certs.letsencrypt.org",
+        "revoked": "revoked.x2.test-certs.letsencrypt.org"
+      }
+    },
+    {
+      "issuerCN": "Root YE",
+      "keyType": "p256",
+      "profile": "shortlived",
+      "domains": {
+        "valid": "valid.ye.test-certs.letsencrypt.org",
+        "expired": "expired.ye.test-certs.letsencrypt.org",
+        "revoked": "revoked.ye.test-certs.letsencrypt.org"
+      }
+    },
+    {
+      "issuerCN": "Root YR",
+      "keyType": "rsa2048",
+      "profile": "shortlived",
+      "domains": {
+        "valid": "valid.yr.test-certs.letsencrypt.org",
+        "expired": "expired.yr.test-certs.letsencrypt.org",
+        "revoked": "revoked.yr.test-certs.letsencrypt.org"
+      }
+    }
+  ],
+  "acme": {
+    "directory": "https://acme-v02.api.letsencrypt.org/directory",
+    "termsOfServiceAgreed": true
+  }
+}

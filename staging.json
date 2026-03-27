@@ -1,0 +1,49 @@
+{
+  "listenAddr": ":443",
+  "sites": [
+    {
+      "issuerCN": "(STAGING) Pretend Pear X1",
+      "keyType": "rsa2048",
+      "profile": "shortlived",
+      "domains": {
+        "valid": "valid.x1.staging-test-certs.letsencrypt.org",
+        "expired": "expired.x1.staging-test-certs.letsencrypt.org",
+        "revoked": "revoked.x1.staging-test-certs.letsencrypt.org"
+      }
+    },
+    {
+      "issuerCN": "(STAGING) Bogus Broccoli X2",
+      "keyType": "p256",
+      "profile": "shortlived",
+      "domains": {
+        "valid": "valid.x2.staging-test-certs.letsencrypt.org",
+        "expired": "expired.x2.staging-test-certs.letsencrypt.org",
+        "revoked": "revoked.x2.staging-test-certs.letsencrypt.org"
+      }
+    },
+    {
+      "issuerCN": "(STAGING) Yearning Yucca Root YE",
+      "keyType": "p256",
+      "profile": "shortlived",
+      "domains": {
+        "valid": "valid.ye.staging-test-certs.letsencrypt.org",
+        "expired": "expired.ye.staging-test-certs.letsencrypt.org",
+        "revoked": "revoked.ye.staging-test-certs.letsencrypt.org"
+      }
+    },
+    {
+      "issuerCN": "(STAGING) Yonder Yam Root YR",
+      "keyType": "rsa2048",
+      "profile": "shortlived",
+      "domains": {
+        "valid": "valid.yr.staging-test-certs.letsencrypt.org",
+        "expired": "expired.yr.staging-test-certs.letsencrypt.org",
+        "revoked": "revoked.yr.staging-test-certs.letsencrypt.org"
+      }
+    }
+  ],
+  "acme": {
+    "directory": "https://acme-staging-v02.api.letsencrypt.org/directory",
+    "termsOfServiceAgreed": true
+  }
+}
