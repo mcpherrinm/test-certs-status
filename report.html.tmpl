@@ -80,17 +80,7 @@
   .badge-revoked { background: var(--red-bg);   color: var(--red); }
   .badge-error   { background: var(--red-bg);   color: var(--red); }
   .badge-none    { background: #f3f4f6; color: var(--muted); cursor: default; }
-  .open-link {
-    display: inline-flex;
-    align-items: center;
-    margin-left: 0.3em;
-    color: var(--muted);
-    font-size: 0.7rem;
-    text-decoration: none;
-    vertical-align: middle;
-  }
-  .open-link:hover { color: var(--text); }
-  .meta { color: var(--muted); font-size: 0.8rem; }
+.meta { color: var(--muted); font-size: 0.8rem; }
   .mono { font-family: ui-monospace, monospace; font-size: 0.8rem; }
   /* Popover */
   details.popover { display: inline; }
@@ -196,7 +186,7 @@
     <details class="popover" id="{{.ID}}">
       <summary><span class="badge {{.BadgeClass}}">{{.Emoji}} {{.Result.Status}}</span></summary>
       <div class="pop">
-        <h4>{{.Result.Domain}}</h4>
+        <h4><a href="https://{{.Result.Domain}}" target="_blank" style="color:inherit;text-decoration:none">{{.Result.Domain}} &#8599;</a></h4>
         <dl>
           <dt>Status</dt><dd>{{.Result.StatusDesc}}</dd>
           {{- if not .Result.NotBefore.IsZero}}
@@ -233,7 +223,6 @@
         {{- end}}
       </div>
     </details>
-    <a class="open-link" href="https://{{.Result.Domain}}" target="_blank" title="{{.Result.Domain}}">&#8599;</a>
   {{- else}}
     <span class="badge badge-none">&mdash;</span>
   {{- end}}
