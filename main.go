@@ -343,12 +343,9 @@ var reportTemplate = template.Must(
 			}
 			return cells
 		},
-		"chainLabel": func(j int, ci certInfo, chainLen int) string {
+		"chainLabel": func(j int) string {
 			if j == 0 {
 				return "Leaf"
-			}
-			if ci.IsCA && j == chainLen-1 {
-				return "Root / Top"
 			}
 			return fmt.Sprintf("Intermediate #%d", j)
 		},

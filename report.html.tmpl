@@ -203,7 +203,7 @@
         <h4 style="margin-top:0.5rem">Chain</h4>
         {{- range $j, $ci := $chain}}
         <div class="cert-entry">
-          <div class="cert-label">{{chainLabel $j $ci (len $chain)}}</div>
+          <div class="cert-label">{{chainLabel $j}}</div>
           <dl>
             <dt>Subject</dt><dd>{{$ci.Subject}}</dd>
             <dt>Issuer</dt><dd>{{$ci.Issuer}}</dd>
