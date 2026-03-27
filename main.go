@@ -3,10 +3,13 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"embed"
 	"flag"
 	"fmt"
+	"html/template"
 	"io"
 	"net"
 	"net/http"
@@ -16,6 +19,9 @@ import (
 
 	"github.com/letsencrypt/test-certs-site/config"
 )
+
+//go:embed report.html.tmpl
+var reportTemplateFile embed.FS
 
 func main() {
 	outPath := flag.String("out", "", "output HTML file (default: stdout)")
@@ -273,14 +279,6 @@ func formatKeyUsage(c *x509.Certificate) string {
 	return strings.Join(usages, ", ")
 }
 
-func escapeHTML(s string) string {
-	s = strings.ReplaceAll(s, "&", "&amp;")
-	s = strings.ReplaceAll(s, "<", "&lt;")
-	s = strings.ReplaceAll(s, ">", "&gt;")
-	s = strings.ReplaceAll(s, "\"", "&quot;")
-	return s
-}
-
 type configSection struct {
 	Name  string
 	Sites []siteResult
@@ -295,212 +293,36 @@ type siteResult struct {
 	Revoked  *result
 }
 
-func renderHTML(sections []configSection) string {
-	var b strings.Builder
+// statusCell is a template-friendly representation of one status column.
+type statusCell struct {
+	Result     *result
+	Label      string
+	ID         string
+	Emoji      string
+	BadgeClass string
+}
 
-	b.WriteString(`<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Certificate Check Report</title>
-<style>
-  *, *::before, *::after { box-sizing: border-box; }
-  :root {
-    --bg: #fafafa;
-    --surface: #fff;
-    --border: #e0e0e0;
-    --text: #1a1a1a;
-    --muted: #666;
-    --green: #16a34a;
-    --green-bg: #dcfce7;
-    --red: #dc2626;
-    --red-bg: #fee2e2;
-    --amber: #d97706;
-    --amber-bg: #fef3c7;
-    --radius: 8px;
-  }
-  body {
-    font-family: system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    margin: 0;
-    padding: 2rem;
-    line-height: 1.5;
-  }
-  h1 { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.25rem; }
-  h2 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
-  .subtitle { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
-  table {
-    width: 100%;
-    max-width: 56rem;
-    table-layout: fixed;
-    border-collapse: separate;
-    border-spacing: 0;
-    background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    margin-bottom: 1rem;
-  }
-  th:first-child { border-top-left-radius: var(--radius); }
-  th:last-child  { border-top-right-radius: var(--radius); }
-  tr:last-child td:first-child { border-bottom-left-radius: var(--radius); }
-  tr:last-child td:last-child  { border-bottom-right-radius: var(--radius); }
-  th, td {
-    text-align: left;
-    padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.85rem;
-  }
-  th {
-    background: #f5f5f5;
-    font-weight: 600;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--muted);
-  }
-  tr:last-child td { border-bottom: none; }
-  td.status-cell { position: relative; text-align: center; }
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3em;
-    padding: 0.15em 0.5em;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    white-space: nowrap;
-    cursor: pointer;
-    user-select: none;
-  }
-  .badge:hover { filter: brightness(0.95); }
-  .badge-valid   { background: var(--green-bg); color: var(--green); }
-  .badge-expired { background: var(--amber-bg); color: var(--amber); }
-  .badge-revoked { background: var(--red-bg);   color: var(--red); }
-  .badge-error   { background: var(--red-bg);   color: var(--red); }
-  .badge-none    { background: #f3f4f6; color: var(--muted); cursor: default; }
-  .open-link {
-    display: inline-flex;
-    align-items: center;
-    margin-left: 0.3em;
-    color: var(--muted);
-    font-size: 0.7rem;
-    text-decoration: none;
-    vertical-align: middle;
-  }
-  .open-link:hover { color: var(--text); }
-  .meta { color: var(--muted); font-size: 0.8rem; }
-  .mono { font-family: ui-monospace, monospace; font-size: 0.8rem; }
-  /* Popover */
-  details.popover { display: inline; }
-  details.popover summary { list-style: none; display: inline; }
-  details.popover summary::-webkit-details-marker { display: none; }
-  details.popover[open] .pop { display: block; }
-  .pop {
-    display: none;
-    position: absolute;
-    z-index: 10;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 440px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-    padding: 0.75rem;
-    font-size: 0.78rem;
-    line-height: 1.5;
-    text-align: left;
-    cursor: default;
-  }
-  .pop h4 { margin: 0 0 0.4rem; font-size: 0.82rem; }
-  .pop dl {
-    margin: 0;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 0.15rem 0.6rem;
-  }
-  .pop dt { font-weight: 600; color: var(--muted); white-space: nowrap; }
-  .pop dd { margin: 0; word-break: break-all; }
-  .pop .cert-entry { padding: 0.4rem 0; border-top: 1px solid var(--border); }
-  .pop .cert-label { font-weight: 600; margin-bottom: 0.2rem; }
-  .summary { font-size: 0.85rem; color: var(--muted); }
-  /* Responsive: stack rows vertically on small screens */
-  @media (max-width: 640px) {
-    table, thead, tbody, tr, th, td { display: block; width: 100%; }
-    thead { display: none; }
-    tr {
-      margin-bottom: 0.75rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-    td {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.4rem 0.75rem;
-      text-align: right;
-    }
-    td::before {
-      content: attr(data-label);
-      font-weight: 600;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      color: var(--muted);
-      text-align: left;
-      margin-right: 1rem;
-    }
-    td.status-cell { justify-content: space-between; }
-    .pop {
-      position: fixed;
-      top: 5vh;
-      left: 5vw;
-      right: 5vw;
-      width: auto;
-      max-height: 90vh;
-      overflow-y: auto;
-      transform: none;
-    }
-  }
-</style>
-</head>
-<body>
-<h1>Certificate Check Report</h1>
-`)
+// reportData is the top-level data passed to the HTML template.
+type reportData struct {
+	GeneratedAt string
+	Sections    []configSection
+	NValid      int
+	NExpired    int
+	NRevoked    int
+	NErr        int
+	Total       int
+}
 
-	b.WriteString(fmt.Sprintf(`<p class="subtitle">Generated %s</p>`, time.Now().UTC().Format("2006-01-02 15:04:05 UTC")))
-
-	var nValid, nExpired, nRevoked, nErr int
-	for secIdx, sec := range sections {
-		b.WriteString(fmt.Sprintf("<h2>%s</h2>\n", escapeHTML(sec.Name)))
-		b.WriteString(`<table>
-<thead>
-<tr>
-  <th style="width:auto">Issuer CN</th>
-  <th style="width:7rem">Key</th>
-  <th style="width:8rem">Profile</th>
-  <th style="width:6rem;text-align:center">Valid</th>
-  <th style="width:6rem;text-align:center">Expired</th>
-  <th style="width:6rem;text-align:center">Revoked</th>
-</tr>
-</thead>
-<tbody>
-`)
-
-		for siteIdx, s := range sec.Sites {
-			b.WriteString("<tr>\n")
-			b.WriteString(fmt.Sprintf(`  <td data-label="Issuer CN">%s</td>`+"\n", escapeHTML(s.IssuerCN)))
-			b.WriteString(fmt.Sprintf(`  <td data-label="Key" class="mono">%s</td>`+"\n", escapeHTML(s.KeyType)))
-			profile := s.Profile
-			if profile == "" {
-				profile = "—"
+var reportTemplate = template.Must(
+	template.New("report.html.tmpl").Funcs(template.FuncMap{
+		"profileOrDash": func(s string) string {
+			if s == "" {
+				return "\u2014"
 			}
-			b.WriteString(fmt.Sprintf(`  <td data-label="Profile" class="meta">%s</td>`+"\n", escapeHTML(profile)))
-
+			return s
+		},
+		"statusCells": func(secIdx, siteIdx int, s siteResult) []statusCell {
+			var cells []statusCell
 			for _, pair := range []struct {
 				r     *result
 				label string
@@ -509,94 +331,68 @@ func renderHTML(sections []configSection) string {
 				{s.Expired, "expired"},
 				{s.Revoked, "revoked"},
 			} {
-				b.WriteString(`  <td class="status-cell">`)
-				if pair.r == nil {
-					b.WriteString(`<span class="badge badge-none">—</span>`)
-				} else {
-					r := pair.r
-					switch r.Status {
-					case "valid":
-						nValid++
-					case "expired":
-						nExpired++
-					case "revoked":
-						nRevoked++
-					case "error":
-						nErr++
-					}
-					emoji, cls := statusBadge(r.Status)
-					id := fmt.Sprintf("p%d-%d-%s", secIdx, siteIdx, pair.label)
-					b.WriteString(fmt.Sprintf(`<details class="popover" id="%s">`, id))
-					b.WriteString(fmt.Sprintf(`<summary><span class="badge %s">%s %s</span></summary>`, cls, emoji, escapeHTML(r.Status)))
-					renderPopover(&b, r)
-					b.WriteString(`</details>`)
-					b.WriteString(fmt.Sprintf(` <a class="open-link" href="https://%s" target="_blank" title="%s">↗</a>`, escapeHTML(r.Domain), escapeHTML(r.Domain)))
+				sc := statusCell{
+					Result: pair.r,
+					Label:  pair.label,
+					ID:     fmt.Sprintf("p%d-%d-%s", secIdx, siteIdx, pair.label),
 				}
-				b.WriteString("</td>\n")
+				if pair.r != nil {
+					sc.Emoji, sc.BadgeClass = statusBadge(pair.r.Status)
+				}
+				cells = append(cells, sc)
 			}
-			b.WriteString("</tr>\n")
-		}
-
-		b.WriteString("</tbody>\n</table>\n")
-	}
-
-	total := nValid + nExpired + nRevoked + nErr
-	b.WriteString(fmt.Sprintf(`<p class="summary">%d checked: `, total))
-	b.WriteString(fmt.Sprintf(`<span style="color:var(--green)">%d valid</span>, `, nValid))
-	b.WriteString(fmt.Sprintf(`<span style="color:var(--amber)">%d expired</span>, `, nExpired))
-	b.WriteString(fmt.Sprintf(`<span style="color:var(--red)">%d revoked</span>`, nRevoked))
-	if nErr > 0 {
-		b.WriteString(fmt.Sprintf(`, <span style="color:var(--red)">%d errors</span>`, nErr))
-	}
-	b.WriteString("</p>\n</body>\n</html>\n")
-
-	return b.String()
-}
-
-func renderPopover(b *strings.Builder, r *result) {
-	b.WriteString(`<div class="pop">`)
-	b.WriteString(fmt.Sprintf(`<h4>%s</h4>`, escapeHTML(r.Domain)))
-	b.WriteString(`<dl>`)
-	b.WriteString(fmt.Sprintf(`<dt>Status</dt><dd>%s</dd>`, escapeHTML(r.StatusDesc)))
-	if !r.NotBefore.IsZero() {
-		b.WriteString(fmt.Sprintf(`<dt>Not Before</dt><dd>%s</dd>`, r.NotBefore.UTC().Format("2006-01-02 15:04 UTC")))
-		b.WriteString(fmt.Sprintf(`<dt>Not After</dt><dd>%s</dd>`, r.NotAfter.UTC().Format("2006-01-02 15:04 UTC")))
-	}
-	if r.CRLErr != "" {
-		b.WriteString(fmt.Sprintf(`<dt>CRL Error</dt><dd>%s</dd>`, escapeHTML(r.CRLErr)))
-	}
-	b.WriteString(fmt.Sprintf(`<dt>In CRL</dt><dd>%v</dd>`, r.InCRL))
-	b.WriteString(`</dl>`)
-
-	if len(r.Chain) > 0 {
-		b.WriteString(`<h4 style="margin-top:0.5rem">Chain</h4>`)
-		for j, ci := range r.Chain {
-			label := "Leaf"
-			if j > 0 {
-				label = fmt.Sprintf("Intermediate #%d", j)
+			return cells
+		},
+		"chainLabel": func(j int, ci certInfo, chainLen int) string {
+			if j == 0 {
+				return "Leaf"
 			}
-			if ci.IsCA && j == len(r.Chain)-1 {
-				label = "Root / Top"
+			if ci.IsCA && j == chainLen-1 {
+				return "Root / Top"
 			}
-			b.WriteString(fmt.Sprintf(`<div class="cert-entry"><div class="cert-label">%s</div>`, label))
-			b.WriteString(`<dl>`)
-			b.WriteString(fmt.Sprintf(`<dt>Subject</dt><dd>%s</dd>`, escapeHTML(ci.Subject)))
-			b.WriteString(fmt.Sprintf(`<dt>Issuer</dt><dd>%s</dd>`, escapeHTML(ci.Issuer)))
-			b.WriteString(fmt.Sprintf(`<dt>Serial</dt><dd class="mono">%s</dd>`, escapeHTML(ci.Serial)))
-			b.WriteString(fmt.Sprintf(`<dt>Not Before</dt><dd>%s</dd>`, ci.NotBefore.UTC().Format(time.RFC3339)))
-			b.WriteString(fmt.Sprintf(`<dt>Not After</dt><dd>%s</dd>`, ci.NotAfter.UTC().Format(time.RFC3339)))
-			b.WriteString(fmt.Sprintf(`<dt>Key Usage</dt><dd>%s</dd>`, escapeHTML(ci.KeyUsage)))
-			if len(ci.SANs) > 0 {
-				b.WriteString(fmt.Sprintf(`<dt>SANs</dt><dd>%s</dd>`, escapeHTML(strings.Join(ci.SANs, ", "))))
+			return fmt.Sprintf("Intermediate #%d", j)
+		},
+		"joinStrings": strings.Join,
+	}).ParseFS(reportTemplateFile, "report.html.tmpl"),
+)
+
+func renderHTML(sections []configSection) string {
+	var nValid, nExpired, nRevoked, nErr int
+	for _, sec := range sections {
+		for _, s := range sec.Sites {
+			for _, r := range []*result{s.Valid, s.Expired, s.Revoked} {
+				if r == nil {
+					continue
+				}
+				switch r.Status {
+				case "valid":
+					nValid++
+				case "expired":
+					nExpired++
+				case "revoked":
+					nRevoked++
+				case "error":
+					nErr++
+				}
 			}
-			if len(ci.CRLDistPts) > 0 {
-				b.WriteString(fmt.Sprintf(`<dt>CRL</dt><dd class="mono">%s</dd>`, escapeHTML(strings.Join(ci.CRLDistPts, ", "))))
-			}
-			b.WriteString(`</dl></div>`)
 		}
 	}
 
-	b.WriteString(`</div>`)
+	data := reportData{
+		GeneratedAt: time.Now().UTC().Format("2006-01-02 15:04:05 UTC"),
+		Sections:    sections,
+		NValid:      nValid,
+		NExpired:    nExpired,
+		NRevoked:    nRevoked,
+		NErr:        nErr,
+		Total:       nValid + nExpired + nRevoked + nErr,
+	}
+
+	var buf bytes.Buffer
+	if err := reportTemplate.Execute(&buf, data); err != nil {
+		panic(fmt.Sprintf("executing report template: %v", err))
+	}
+	return buf.String()
 }
 
 func statusBadge(status string) (emoji string, class string) {
