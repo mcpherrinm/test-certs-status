@@ -209,10 +209,11 @@
           <dt>In CRL</dt><dd>{{.Result.InCRL}}</dd>
         </dl>
         {{- if .Result.Chain}}
+        {{- $chain := .Result.Chain}}
         <h4 style="margin-top:0.5rem">Chain</h4>
-        {{- range $j, $ci := .Result.Chain}}
+        {{- range $j, $ci := $chain}}
         <div class="cert-entry">
-          <div class="cert-label">{{chainLabel $j $ci (len $.Result.Chain)}}</div>
+          <div class="cert-label">{{chainLabel $j $ci (len $chain)}}</div>
           <dl>
             <dt>Subject</dt><dd>{{$ci.Subject}}</dd>
             <dt>Issuer</dt><dd>{{$ci.Issuer}}</dd>
