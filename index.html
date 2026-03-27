@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Certificate Check Report</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  :root {
+    --bg: #fafafa;
+    --surface: #fff;
+    --border: #e0e0e0;
+    --text: #1a1a1a;
+    --muted: #666;
+    --green: #16a34a;
+    --green-bg: #dcfce7;
+    --red: #dc2626;
+    --red-bg: #fee2e2;
+    --amber: #d97706;
+    --amber-bg: #fef3c7;
+    --radius: 8px;
+  }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 2rem;
+    line-height: 1.5;
+  }
+  h1 { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.25rem; }
+  h2 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
+  .subtitle { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
+  table {
+    width: 100%;
+    max-width: 56rem;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin-bottom: 1rem;
+  }
+  th:first-child { border-top-left-radius: var(--radius); }
+  th:last-child  { border-top-right-radius: var(--radius); }
+  tr:last-child td:first-child { border-bottom-left-radius: var(--radius); }
+  tr:last-child td:last-child  { border-bottom-right-radius: var(--radius); }
+  th, td {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  th {
+    background: #f5f5f5;
+    font-weight: 600;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+  }
+  tr:last-child td { border-bottom: none; }
+  td.status-cell { position: relative; text-align: center; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    padding: 0.15em 0.5em;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+  .badge:hover { filter: brightness(0.95); }
+  .badge-valid   { background: var(--green-bg); color: var(--green); }
+  .badge-expired { background: var(--amber-bg); color: var(--amber); }
+  .badge-revoked { background: var(--red-bg);   color: var(--red); }
+  .badge-error   { background: var(--red-bg);   color: var(--red); }
+  .badge-none    { background: #f3f4f6; color: var(--muted); cursor: default; }
+  .open-link {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.3em;
+    color: var(--muted);
+    font-size: 0.7rem;
+    text-decoration: none;
+    vertical-align: middle;
+  }
+  .open-link:hover { color: var(--text); }
+  .meta { color: var(--muted); font-size: 0.8rem; }
+  .mono { font-family: ui-monospace, monospace; font-size: 0.8rem; }
+   
+  details.popover { display: inline; }
+  details.popover summary { list-style: none; display: inline; }
+  details.popover summary::-webkit-details-marker { display: none; }
+  details.popover[open] .pop { display: block; }
+  .pop {
+    display: none;
+    position: absolute;
+    z-index: 10;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 440px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    padding: 0.75rem;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    text-align: left;
+    cursor: default;
+  }
+  .pop h4 { margin: 0 0 0.4rem; font-size: 0.82rem; }
+  .pop dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.15rem 0.6rem;
+  }
+  .pop dt { font-weight: 600; color: var(--muted); white-space: nowrap; }
+  .pop dd { margin: 0; word-break: break-all; }
+  .pop .cert-entry { padding: 0.4rem 0; border-top: 1px solid var(--border); }
+  .pop .cert-label { font-weight: 600; margin-bottom: 0.2rem; }
+  .summary { font-size: 0.85rem; color: var(--muted); }
+   
+  @media (max-width: 640px) {
+    table, thead, tbody, tr, th, td { display: block; width: 100%; }
+    thead { display: none; }
+    tr {
+      margin-bottom: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.4rem 0.75rem;
+      text-align: right;
+    }
+    td::before {
+      content: attr(data-label);
+      font-weight: 600;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--muted);
+      text-align: left;
+      margin-right: 1rem;
+    }
+    td.status-cell { justify-content: space-between; }
+    .pop {
+      position: fixed;
+      top: 5vh;
+      left: 5vw;
+      right: 5vw;
+      width: auto;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: none;
+    }
+  }
+</style>
+</head>
+<body>
+<h1>Certificate Check Report</h1>
+<p class="subtitle">Generated 2026-03-27 20:53:27 UTC</p>
+<h2>prod.json</h2>
+<table>
+<thead>
+<tr>
+  <th style="width:auto">Issuer CN</th>
+  <th style="width:7rem">Key</th>
+  <th style="width:8rem">Profile</th>
+  <th style="width:6rem;text-align:center">Valid</th>
+  <th style="width:6rem;text-align:center">Expired</th>
+  <th style="width:6rem;text-align:center">Revoked</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td data-label="Issuer CN">ISRG Root X1</td>
+  <td data-label="Key" class="mono">rsa2048</td>
+  <td data-label="Profile" class="meta">shortlived</td>
+  <td class="status-cell">
+    <details class="popover" id="p0-0-valid">
+      <summary><span class="badge badge-valid">✅ valid</span></summary>
+      <div class="pop">
+        <h4>valid.x1.test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is valid — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 07:41 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-02 23:41 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>YR2</dd>
+            <dt>Serial</dt><dd class="mono">6e6fd4752ed2df609fd06aaadb78d89fc40</dd>
+            <dt>Not Before</dt><dd>2026-03-27T07:41:43Z</dd>
+            <dt>Not After</dt><dd>2026-04-02T23:41:42Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>valid.x1.test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://yr2.c.lencr.org/65.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Intermediate #1</div>
+          <dl>
+            <dt>Subject</dt><dd>YR2</dd>
+            <dt>Issuer</dt><dd>Root YR</dd>
+            <dt>Serial</dt><dd class="mono">4ebd24947e24d394802d84a52fd5b319</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://yr.c.lencr.org/</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>Root YR</dd>
+            <dt>Issuer</dt><dd>ISRG Root X1</dd>
+            <dt>Serial</dt><dd class="mono">faa6275dc258431d9766ec3045ef24ac</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2032-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Certificate Sign, CRL Sign</dd>
+            <dt>CRL</dt><dd class="mono">http://x1.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://valid.x1.test-certs.letsencrypt.org" target="_blank" title="valid.x1.test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p0-0-expired">
+      <summary><span class="badge badge-expired">⏰ expired</span></summary>
+      <div class="pop">
+        <h4>expired.x1.test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is expired — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-20 16:24 UTC</dd>
+          <dt>Not After</dt><dd>2026-03-27 08:24 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>YR2</dd>
+            <dt>Serial</dt><dd class="mono">6b46285d2f766a997c07da748e82f34fbe6</dd>
+            <dt>Not Before</dt><dd>2026-03-20T16:24:03Z</dd>
+            <dt>Not After</dt><dd>2026-03-27T08:24:02Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>expired.x1.test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://yr2.c.lencr.org/103.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Intermediate #1</div>
+          <dl>
+            <dt>Subject</dt><dd>YR2</dd>
+            <dt>Issuer</dt><dd>Root YR</dd>
+            <dt>Serial</dt><dd class="mono">4ebd24947e24d394802d84a52fd5b319</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://yr.c.lencr.org/</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>Root YR</dd>
+            <dt>Issuer</dt><dd>ISRG Root X1</dd>
+            <dt>Serial</dt><dd class="mono">faa6275dc258431d9766ec3045ef24ac</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2032-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Certificate Sign, CRL Sign</dd>
+            <dt>CRL</dt><dd class="mono">http://x1.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://expired.x1.test-certs.letsencrypt.org" target="_blank" title="expired.x1.test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p0-0-revoked">
+      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
+      <div class="pop">
+        <h4>revoked.x1.test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 07:27 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-02 23:27 UTC</dd>
+          <dt>In CRL</dt><dd>true</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>YR2</dd>
+            <dt>Serial</dt><dd class="mono">6374e4fd9cdeaa4d3d5f7cf8d21ecd55985</dd>
+            <dt>Not Before</dt><dd>2026-03-27T07:27:32Z</dd>
+            <dt>Not After</dt><dd>2026-04-02T23:27:31Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>revoked.x1.test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://yr2.c.lencr.org/6.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Intermediate #1</div>
+          <dl>
+            <dt>Subject</dt><dd>YR2</dd>
+            <dt>Issuer</dt><dd>Root YR</dd>
+            <dt>Serial</dt><dd class="mono">4ebd24947e24d394802d84a52fd5b319</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://yr.c.lencr.org/</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>Root YR</dd>
+            <dt>Issuer</dt><dd>ISRG Root X1</dd>
+            <dt>Serial</dt><dd class="mono">faa6275dc258431d9766ec3045ef24ac</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2032-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Certificate Sign, CRL Sign</dd>
+            <dt>CRL</dt><dd class="mono">http://x1.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://revoked.x1.test-certs.letsencrypt.org" target="_blank" title="revoked.x1.test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+</tr>
+<tr>
+  <td data-label="Issuer CN">ISRG Root X2</td>
+  <td data-label="Key" class="mono">p256</td>
+  <td data-label="Profile" class="meta">shortlived</td>
+  <td class="status-cell">
+    <details class="popover" id="p0-1-valid">
+      <summary><span class="badge badge-valid">✅ valid</span></summary>
+      <div class="pop">
+        <h4>valid.x2.test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is valid — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 07:18 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-02 23:18 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>YE1</dd>
+            <dt>Serial</dt><dd class="mono">5db84f5b2d9aeb2e3d7451bfa6484b2215b</dd>
+            <dt>Not Before</dt><dd>2026-03-27T07:18:41Z</dd>
+            <dt>Not After</dt><dd>2026-04-02T23:18:40Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>valid.x2.test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://ye1.c.lencr.org/92.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Intermediate #1</div>
+          <dl>
+            <dt>Subject</dt><dd>YE1</dd>
+            <dt>Issuer</dt><dd>Root YE</dd>
+            <dt>Serial</dt><dd class="mono">5ddd70dd31f801c85c186a7a04b80afe</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://ye.c.lencr.org/</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>Root YE</dd>
+            <dt>Issuer</dt><dd>ISRG Root X2</dd>
+            <dt>Serial</dt><dd class="mono">6f5e60e69c3a7469906619d56e4f499a</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2032-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Certificate Sign, CRL Sign</dd>
+            <dt>CRL</dt><dd class="mono">http://x2.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://valid.x2.test-certs.letsencrypt.org" target="_blank" title="valid.x2.test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p0-1-expired">
+      <summary><span class="badge badge-expired">⏰ expired</span></summary>
+      <div class="pop">
+        <h4>expired.x2.test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is expired — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-20 16:24 UTC</dd>
+          <dt>Not After</dt><dd>2026-03-27 08:24 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>YE1</dd>
+            <dt>Serial</dt><dd class="mono">538f6e00ffbc5dd101960430bbed9762135</dd>
+            <dt>Not Before</dt><dd>2026-03-20T16:24:27Z</dd>
+            <dt>Not After</dt><dd>2026-03-27T08:24:26Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>expired.x2.test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://ye1.c.lencr.org/54.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Intermediate #1</div>
+          <dl>
+            <dt>Subject</dt><dd>YE1</dd>
+            <dt>Issuer</dt><dd>Root YE</dd>
+            <dt>Serial</dt><dd class="mono">5ddd70dd31f801c85c186a7a04b80afe</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://ye.c.lencr.org/</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>Root YE</dd>
+            <dt>Issuer</dt><dd>ISRG Root X2</dd>
+            <dt>Serial</dt><dd class="mono">6f5e60e69c3a7469906619d56e4f499a</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2032-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Certificate Sign, CRL Sign</dd>
+            <dt>CRL</dt><dd class="mono">http://x2.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://expired.x2.test-certs.letsencrypt.org" target="_blank" title="expired.x2.test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p0-1-revoked">
+      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
+      <div class="pop">
+        <h4>revoked.x2.test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 06:27 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-02 22:27 UTC</dd>
+          <dt>In CRL</dt><dd>true</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>YE1</dd>
+            <dt>Serial</dt><dd class="mono">50e5272051635d8106b4e25e74d7fc43636</dd>
+            <dt>Not Before</dt><dd>2026-03-27T06:27:30Z</dd>
+            <dt>Not After</dt><dd>2026-04-02T22:27:29Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>revoked.x2.test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://ye1.c.lencr.org/55.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Intermediate #1</div>
+          <dl>
+            <dt>Subject</dt><dd>YE1</dd>
+            <dt>Issuer</dt><dd>Root YE</dd>
+            <dt>Serial</dt><dd class="mono">5ddd70dd31f801c85c186a7a04b80afe</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://ye.c.lencr.org/</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>Root YE</dd>
+            <dt>Issuer</dt><dd>ISRG Root X2</dd>
+            <dt>Serial</dt><dd class="mono">6f5e60e69c3a7469906619d56e4f499a</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2032-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Certificate Sign, CRL Sign</dd>
+            <dt>CRL</dt><dd class="mono">http://x2.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://revoked.x2.test-certs.letsencrypt.org" target="_blank" title="revoked.x2.test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+</tr>
+<tr>
+  <td data-label="Issuer CN">Root YE</td>
+  <td data-label="Key" class="mono">p256</td>
+  <td data-label="Profile" class="meta">shortlived</td>
+  <td class="status-cell">
+    <details class="popover" id="p0-2-valid">
+      <summary><span class="badge badge-valid">✅ valid</span></summary>
+      <div class="pop">
+        <h4>valid.ye.test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is valid — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 08:04 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-03 00:04 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>YE1</dd>
+            <dt>Serial</dt><dd class="mono">50c227b1066853a1fd59f9290551cbcd9fe</dd>
+            <dt>Not Before</dt><dd>2026-03-27T08:04:34Z</dd>
+            <dt>Not After</dt><dd>2026-04-03T00:04:33Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>valid.ye.test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://ye1.c.lencr.org/127.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>YE1</dd>
+            <dt>Issuer</dt><dd>Root YE</dd>
+            <dt>Serial</dt><dd class="mono">5ddd70dd31f801c85c186a7a04b80afe</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://ye.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://valid.ye.test-certs.letsencrypt.org" target="_blank" title="valid.ye.test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p0-2-expired">
+      <summary><span class="badge badge-expired">⏰ expired</span></summary>
+      <div class="pop">
+        <h4>expired.ye.test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is expired — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-20 16:24 UTC</dd>
+          <dt>Not After</dt><dd>2026-03-27 08:24 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>YE2</dd>
+            <dt>Serial</dt><dd class="mono">536d676c9c535120e9d0df8467114d532d3</dd>
+            <dt>Not Before</dt><dd>2026-03-20T16:24:30Z</dd>
+            <dt>Not After</dt><dd>2026-03-27T08:24:29Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>expired.ye.test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://ye2.c.lencr.org/84.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>YE2</dd>
+            <dt>Issuer</dt><dd>Root YE</dd>
+            <dt>Serial</dt><dd class="mono">4df3b15dd6c0784c507cd37b58e6f115</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://ye.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://expired.ye.test-certs.letsencrypt.org" target="_blank" title="expired.ye.test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p0-2-revoked">
+      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
+      <div class="pop">
+        <h4>revoked.ye.test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 06:26 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-02 22:26 UTC</dd>
+          <dt>In CRL</dt><dd>true</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>YE1</dd>
+            <dt>Serial</dt><dd class="mono">54b648bee2485f8e49cee10a30380fb7eab</dd>
+            <dt>Not Before</dt><dd>2026-03-27T06:26:56Z</dd>
+            <dt>Not After</dt><dd>2026-04-02T22:26:55Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>revoked.ye.test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://ye1.c.lencr.org/44.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>YE1</dd>
+            <dt>Issuer</dt><dd>Root YE</dd>
+            <dt>Serial</dt><dd class="mono">5ddd70dd31f801c85c186a7a04b80afe</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://ye.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://revoked.ye.test-certs.letsencrypt.org" target="_blank" title="revoked.ye.test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+</tr>
+<tr>
+  <td data-label="Issuer CN">Root YR</td>
+  <td data-label="Key" class="mono">rsa2048</td>
+  <td data-label="Profile" class="meta">shortlived</td>
+  <td class="status-cell">
+    <details class="popover" id="p0-3-valid">
+      <summary><span class="badge badge-valid">✅ valid</span></summary>
+      <div class="pop">
+        <h4>valid.yr.test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is valid — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 11:10 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-03 03:10 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>YR2</dd>
+            <dt>Serial</dt><dd class="mono">6286d1671c9c1f840e10317440b1c680d5e</dd>
+            <dt>Not Before</dt><dd>2026-03-27T11:10:34Z</dd>
+            <dt>Not After</dt><dd>2026-04-03T03:10:33Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>valid.yr.test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://yr2.c.lencr.org/95.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>YR2</dd>
+            <dt>Issuer</dt><dd>Root YR</dd>
+            <dt>Serial</dt><dd class="mono">4ebd24947e24d394802d84a52fd5b319</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://yr.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://valid.yr.test-certs.letsencrypt.org" target="_blank" title="valid.yr.test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p0-3-expired">
+      <summary><span class="badge badge-expired">⏰ expired</span></summary>
+      <div class="pop">
+        <h4>expired.yr.test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is expired — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-20 16:24 UTC</dd>
+          <dt>Not After</dt><dd>2026-03-27 08:24 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>YR1</dd>
+            <dt>Serial</dt><dd class="mono">68d8e3132483861756beb8b58060100ee26</dd>
+            <dt>Not Before</dt><dd>2026-03-20T16:24:20Z</dd>
+            <dt>Not After</dt><dd>2026-03-27T08:24:19Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>expired.yr.test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://yr1.c.lencr.org/39.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>YR1</dd>
+            <dt>Issuer</dt><dd>Root YR</dd>
+            <dt>Serial</dt><dd class="mono">a20253f15f2691c05dc1ce13b9bcca4e</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://yr.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://expired.yr.test-certs.letsencrypt.org" target="_blank" title="expired.yr.test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p0-3-revoked">
+      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
+      <div class="pop">
+        <h4>revoked.yr.test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 07:26 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-02 23:26 UTC</dd>
+          <dt>In CRL</dt><dd>true</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>YR1</dd>
+            <dt>Serial</dt><dd class="mono">695137a7286711a523db4c2f4618eec6dd5</dd>
+            <dt>Not Before</dt><dd>2026-03-27T07:26:46Z</dd>
+            <dt>Not After</dt><dd>2026-04-02T23:26:45Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>revoked.yr.test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://yr1.c.lencr.org/86.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>YR1</dd>
+            <dt>Issuer</dt><dd>Root YR</dd>
+            <dt>Serial</dt><dd class="mono">a20253f15f2691c05dc1ce13b9bcca4e</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://yr.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://revoked.yr.test-certs.letsencrypt.org" target="_blank" title="revoked.yr.test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+</tr>
+</tbody>
+</table>
+<h2>staging.json</h2>
+<table>
+<thead>
+<tr>
+  <th style="width:auto">Issuer CN</th>
+  <th style="width:7rem">Key</th>
+  <th style="width:8rem">Profile</th>
+  <th style="width:6rem;text-align:center">Valid</th>
+  <th style="width:6rem;text-align:center">Expired</th>
+  <th style="width:6rem;text-align:center">Revoked</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td data-label="Issuer CN">(STAGING) Pretend Pear X1</td>
+  <td data-label="Key" class="mono">rsa2048</td>
+  <td data-label="Profile" class="meta">shortlived</td>
+  <td class="status-cell">
+    <details class="popover" id="p1-0-valid">
+      <summary><span class="badge badge-valid">✅ valid</span></summary>
+      <div class="pop">
+        <h4>valid.x1.staging-test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is valid — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 07:47 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-02 23:47 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>(STAGING) Ersatz Emmer YR2</dd>
+            <dt>Serial</dt><dd class="mono">2cf2deba2127f4144030efba0f1cc2c78bf4</dd>
+            <dt>Not Before</dt><dd>2026-03-27T07:47:30Z</dd>
+            <dt>Not After</dt><dd>2026-04-02T23:47:29Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>valid.x1.staging-test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-yr2.c.lencr.org/117.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Intermediate #1</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Ersatz Emmer YR2</dd>
+            <dt>Issuer</dt><dd>(STAGING) Yonder Yam Root YR</dd>
+            <dt>Serial</dt><dd class="mono">3fad906c2f0301d18d6da47b37306fde</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-yr.c.lencr.org/</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Yonder Yam Root YR</dd>
+            <dt>Issuer</dt><dd>(STAGING) Pretend Pear X1</dd>
+            <dt>Serial</dt><dd class="mono">6884a9d42d57dbb8f32ab36d78cb7da6</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2032-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Certificate Sign, CRL Sign</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-x1.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://valid.x1.staging-test-certs.letsencrypt.org" target="_blank" title="valid.x1.staging-test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p1-0-expired">
+      <summary><span class="badge badge-expired">⏰ expired</span></summary>
+      <div class="pop">
+        <h4>expired.x1.staging-test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is expired — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-20 16:24 UTC</dd>
+          <dt>Not After</dt><dd>2026-03-27 08:24 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>(STAGING) Ersatz Emmer YR2</dd>
+            <dt>Serial</dt><dd class="mono">2c6b2c93420af2dcbf534319f1578591a3c8</dd>
+            <dt>Not Before</dt><dd>2026-03-20T16:24:30Z</dd>
+            <dt>Not After</dt><dd>2026-03-27T08:24:29Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>expired.x1.staging-test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-yr2.c.lencr.org/73.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Intermediate #1</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Ersatz Emmer YR2</dd>
+            <dt>Issuer</dt><dd>(STAGING) Yonder Yam Root YR</dd>
+            <dt>Serial</dt><dd class="mono">3fad906c2f0301d18d6da47b37306fde</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-yr.c.lencr.org/</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Yonder Yam Root YR</dd>
+            <dt>Issuer</dt><dd>(STAGING) Pretend Pear X1</dd>
+            <dt>Serial</dt><dd class="mono">6884a9d42d57dbb8f32ab36d78cb7da6</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2032-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Certificate Sign, CRL Sign</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-x1.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://expired.x1.staging-test-certs.letsencrypt.org" target="_blank" title="expired.x1.staging-test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p1-0-revoked">
+      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
+      <div class="pop">
+        <h4>revoked.x1.staging-test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 06:27 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-02 22:27 UTC</dd>
+          <dt>In CRL</dt><dd>true</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>(STAGING) Dastardly Durum YR1</dd>
+            <dt>Serial</dt><dd class="mono">2c0be19ede99ec14fc8c034023bfc7434a9a</dd>
+            <dt>Not Before</dt><dd>2026-03-27T06:27:47Z</dd>
+            <dt>Not After</dt><dd>2026-04-02T22:27:46Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>revoked.x1.staging-test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-yr1.c.lencr.org/27.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Intermediate #1</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Dastardly Durum YR1</dd>
+            <dt>Issuer</dt><dd>(STAGING) Yonder Yam Root YR</dd>
+            <dt>Serial</dt><dd class="mono">4568bcf78168a2e05faf01567d958eef</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-yr.c.lencr.org/</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Yonder Yam Root YR</dd>
+            <dt>Issuer</dt><dd>(STAGING) Pretend Pear X1</dd>
+            <dt>Serial</dt><dd class="mono">6884a9d42d57dbb8f32ab36d78cb7da6</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2032-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Certificate Sign, CRL Sign</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-x1.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://revoked.x1.staging-test-certs.letsencrypt.org" target="_blank" title="revoked.x1.staging-test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+</tr>
+<tr>
+  <td data-label="Issuer CN">(STAGING) Bogus Broccoli X2</td>
+  <td data-label="Key" class="mono">p256</td>
+  <td data-label="Profile" class="meta">shortlived</td>
+  <td class="status-cell">
+    <details class="popover" id="p1-1-valid">
+      <summary><span class="badge badge-valid">✅ valid</span></summary>
+      <div class="pop">
+        <h4>valid.x2.staging-test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is valid — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 09:23 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-03 01:23 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>(STAGING) Artificial Amaranth YE1</dd>
+            <dt>Serial</dt><dd class="mono">2c0e946493825f9d35c720c64f612a51ef37</dd>
+            <dt>Not Before</dt><dd>2026-03-27T09:23:44Z</dd>
+            <dt>Not After</dt><dd>2026-04-03T01:23:43Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>valid.x2.staging-test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-ye1.c.lencr.org/56.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Intermediate #1</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Artificial Amaranth YE1</dd>
+            <dt>Issuer</dt><dd>(STAGING) Yearning Yucca Root YE</dd>
+            <dt>Serial</dt><dd class="mono">42e6e207301d22b77cc53b56769d7c40</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-ye.c.lencr.org/</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Yearning Yucca Root YE</dd>
+            <dt>Issuer</dt><dd>(STAGING) Bogus Broccoli X2</dd>
+            <dt>Serial</dt><dd class="mono">4a023ec6db21f3de83a68e56370864b0</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2032-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Certificate Sign, CRL Sign</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-x2.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://valid.x2.staging-test-certs.letsencrypt.org" target="_blank" title="valid.x2.staging-test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p1-1-expired">
+      <summary><span class="badge badge-expired">⏰ expired</span></summary>
+      <div class="pop">
+        <h4>expired.x2.staging-test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is expired — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-20 16:24 UTC</dd>
+          <dt>Not After</dt><dd>2026-03-27 08:24 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>(STAGING) Artificial Amaranth YE1</dd>
+            <dt>Serial</dt><dd class="mono">2cf62ad8a0d6376ea58ed789874a19c76ed4</dd>
+            <dt>Not Before</dt><dd>2026-03-20T16:24:11Z</dd>
+            <dt>Not After</dt><dd>2026-03-27T08:24:10Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>expired.x2.staging-test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-ye1.c.lencr.org/85.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Intermediate #1</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Artificial Amaranth YE1</dd>
+            <dt>Issuer</dt><dd>(STAGING) Yearning Yucca Root YE</dd>
+            <dt>Serial</dt><dd class="mono">42e6e207301d22b77cc53b56769d7c40</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-ye.c.lencr.org/</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Yearning Yucca Root YE</dd>
+            <dt>Issuer</dt><dd>(STAGING) Bogus Broccoli X2</dd>
+            <dt>Serial</dt><dd class="mono">4a023ec6db21f3de83a68e56370864b0</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2032-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Certificate Sign, CRL Sign</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-x2.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://expired.x2.staging-test-certs.letsencrypt.org" target="_blank" title="expired.x2.staging-test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p1-1-revoked">
+      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
+      <div class="pop">
+        <h4>revoked.x2.staging-test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 06:27 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-02 22:27 UTC</dd>
+          <dt>In CRL</dt><dd>true</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>(STAGING) Baloney Bulgur YE2</dd>
+            <dt>Serial</dt><dd class="mono">2c4bf43415ac3babe75cf0a130aecb018ada</dd>
+            <dt>Not Before</dt><dd>2026-03-27T06:27:45Z</dd>
+            <dt>Not After</dt><dd>2026-04-02T22:27:44Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>revoked.x2.staging-test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-ye2.c.lencr.org/91.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Intermediate #1</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Baloney Bulgur YE2</dd>
+            <dt>Issuer</dt><dd>(STAGING) Yearning Yucca Root YE</dd>
+            <dt>Serial</dt><dd class="mono">ac32e08d1c67d2a6f92051c05bf71f0</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-ye.c.lencr.org/</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Yearning Yucca Root YE</dd>
+            <dt>Issuer</dt><dd>(STAGING) Bogus Broccoli X2</dd>
+            <dt>Serial</dt><dd class="mono">4a023ec6db21f3de83a68e56370864b0</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2032-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Certificate Sign, CRL Sign</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-x2.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://revoked.x2.staging-test-certs.letsencrypt.org" target="_blank" title="revoked.x2.staging-test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+</tr>
+<tr>
+  <td data-label="Issuer CN">(STAGING) Yearning Yucca Root YE</td>
+  <td data-label="Key" class="mono">p256</td>
+  <td data-label="Profile" class="meta">shortlived</td>
+  <td class="status-cell">
+    <details class="popover" id="p1-2-valid">
+      <summary><span class="badge badge-valid">✅ valid</span></summary>
+      <div class="pop">
+        <h4>valid.ye.staging-test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is valid — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 10:06 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-03 02:06 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>(STAGING) Baloney Bulgur YE2</dd>
+            <dt>Serial</dt><dd class="mono">2c79243cdabc95e5bcb130827958fe2b0cff</dd>
+            <dt>Not Before</dt><dd>2026-03-27T10:06:59Z</dd>
+            <dt>Not After</dt><dd>2026-04-03T02:06:58Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>valid.ye.staging-test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-ye2.c.lencr.org/128.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Baloney Bulgur YE2</dd>
+            <dt>Issuer</dt><dd>(STAGING) Yearning Yucca Root YE</dd>
+            <dt>Serial</dt><dd class="mono">ac32e08d1c67d2a6f92051c05bf71f0</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-ye.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://valid.ye.staging-test-certs.letsencrypt.org" target="_blank" title="valid.ye.staging-test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p1-2-expired">
+      <summary><span class="badge badge-expired">⏰ expired</span></summary>
+      <div class="pop">
+        <h4>expired.ye.staging-test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is expired — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-20 16:24 UTC</dd>
+          <dt>Not After</dt><dd>2026-03-27 08:24 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>(STAGING) Baloney Bulgur YE2</dd>
+            <dt>Serial</dt><dd class="mono">2c64758195c6004aacbfa35ae7ec2792b598</dd>
+            <dt>Not Before</dt><dd>2026-03-20T16:24:21Z</dd>
+            <dt>Not After</dt><dd>2026-03-27T08:24:20Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>expired.ye.staging-test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-ye2.c.lencr.org/25.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Baloney Bulgur YE2</dd>
+            <dt>Issuer</dt><dd>(STAGING) Yearning Yucca Root YE</dd>
+            <dt>Serial</dt><dd class="mono">ac32e08d1c67d2a6f92051c05bf71f0</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-ye.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://expired.ye.staging-test-certs.letsencrypt.org" target="_blank" title="expired.ye.staging-test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p1-2-revoked">
+      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
+      <div class="pop">
+        <h4>revoked.ye.staging-test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 06:27 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-02 22:27 UTC</dd>
+          <dt>In CRL</dt><dd>true</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>(STAGING) Artificial Amaranth YE1</dd>
+            <dt>Serial</dt><dd class="mono">2cdc69e07b7835af485e86192583eb692054</dd>
+            <dt>Not Before</dt><dd>2026-03-27T06:27:34Z</dd>
+            <dt>Not After</dt><dd>2026-04-02T22:27:33Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>revoked.ye.staging-test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-ye1.c.lencr.org/85.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Artificial Amaranth YE1</dd>
+            <dt>Issuer</dt><dd>(STAGING) Yearning Yucca Root YE</dd>
+            <dt>Serial</dt><dd class="mono">42e6e207301d22b77cc53b56769d7c40</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-ye.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://revoked.ye.staging-test-certs.letsencrypt.org" target="_blank" title="revoked.ye.staging-test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+</tr>
+<tr>
+  <td data-label="Issuer CN">(STAGING) Yonder Yam Root YR</td>
+  <td data-label="Key" class="mono">rsa2048</td>
+  <td data-label="Profile" class="meta">shortlived</td>
+  <td class="status-cell">
+    <details class="popover" id="p1-3-valid">
+      <summary><span class="badge badge-valid">✅ valid</span></summary>
+      <div class="pop">
+        <h4>valid.yr.staging-test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is valid — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 06:54 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-02 22:54 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>(STAGING) Ersatz Emmer YR2</dd>
+            <dt>Serial</dt><dd class="mono">2c840189cff1b0eac79ea2e42fc1b434f7a1</dd>
+            <dt>Not Before</dt><dd>2026-03-27T06:54:59Z</dd>
+            <dt>Not After</dt><dd>2026-04-02T22:54:58Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>valid.yr.staging-test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-yr2.c.lencr.org/34.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Ersatz Emmer YR2</dd>
+            <dt>Issuer</dt><dd>(STAGING) Yonder Yam Root YR</dd>
+            <dt>Serial</dt><dd class="mono">3fad906c2f0301d18d6da47b37306fde</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-yr.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://valid.yr.staging-test-certs.letsencrypt.org" target="_blank" title="valid.yr.staging-test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p1-3-expired">
+      <summary><span class="badge badge-expired">⏰ expired</span></summary>
+      <div class="pop">
+        <h4>expired.yr.staging-test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is expired — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-20 17:23 UTC</dd>
+          <dt>Not After</dt><dd>2026-03-27 09:23 UTC</dd>
+          <dt>In CRL</dt><dd>false</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>(STAGING) Dastardly Durum YR1</dd>
+            <dt>Serial</dt><dd class="mono">2ccea48b70e4e350f101c1bb27923e3fb611</dd>
+            <dt>Not Before</dt><dd>2026-03-20T17:23:51Z</dd>
+            <dt>Not After</dt><dd>2026-03-27T09:23:50Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>expired.yr.staging-test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-yr1.c.lencr.org/18.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Dastardly Durum YR1</dd>
+            <dt>Issuer</dt><dd>(STAGING) Yonder Yam Root YR</dd>
+            <dt>Serial</dt><dd class="mono">4568bcf78168a2e05faf01567d958eef</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-yr.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://expired.yr.staging-test-certs.letsencrypt.org" target="_blank" title="expired.yr.staging-test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+  <td class="status-cell">
+    <details class="popover" id="p1-3-revoked">
+      <summary><span class="badge badge-revoked">🔪 revoked</span></summary>
+      <div class="pop">
+        <h4>revoked.yr.staging-test-certs.letsencrypt.org</h4>
+        <dl>
+          <dt>Status</dt><dd>Certificate is revoked (found in CRL) — correct</dd>
+          <dt>Not Before</dt><dd>2026-03-27 07:27 UTC</dd>
+          <dt>Not After</dt><dd>2026-04-02 23:27 UTC</dd>
+          <dt>In CRL</dt><dd>true</dd>
+        </dl>
+        <h4 style="margin-top:0.5rem">Chain</h4>
+        <div class="cert-entry">
+          <div class="cert-label">Leaf</div>
+          <dl>
+            <dt>Subject</dt><dd></dd>
+            <dt>Issuer</dt><dd>(STAGING) Ersatz Emmer YR2</dd>
+            <dt>Serial</dt><dd class="mono">2c60a67ea6cc964733ff5e396e924cac9f3d</dd>
+            <dt>Not Before</dt><dd>2026-03-27T07:27:03Z</dd>
+            <dt>Not After</dt><dd>2026-04-02T23:27:02Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Server Auth</dd>
+            <dt>SANs</dt><dd>revoked.yr.staging-test-certs.letsencrypt.org</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-yr2.c.lencr.org/62.crl</dd>
+          </dl>
+        </div>
+        <div class="cert-entry">
+          <div class="cert-label">Root / Top</div>
+          <dl>
+            <dt>Subject</dt><dd>(STAGING) Ersatz Emmer YR2</dd>
+            <dt>Issuer</dt><dd>(STAGING) Yonder Yam Root YR</dd>
+            <dt>Serial</dt><dd class="mono">3fad906c2f0301d18d6da47b37306fde</dd>
+            <dt>Not Before</dt><dd>2025-09-03T00:00:00Z</dd>
+            <dt>Not After</dt><dd>2028-09-02T23:59:59Z</dd>
+            <dt>Key Usage</dt><dd>Digital Signature, Certificate Sign, CRL Sign, Server Auth</dd>
+            <dt>CRL</dt><dd class="mono">http://stg-yr.c.lencr.org/</dd>
+          </dl>
+        </div>
+      </div>
+    </details>
+    <a class="open-link" href="https://revoked.yr.staging-test-certs.letsencrypt.org" target="_blank" title="revoked.yr.staging-test-certs.letsencrypt.org">&#8599;</a>
+  </td>
+</tr>
+</tbody>
+</table>
+<p class="summary">24 checked:
+  <span style="color:var(--green)">8 valid</span>,
+  <span style="color:var(--amber)">8 expired</span>,
+  <span style="color:var(--red)">8 revoked</span>
+</p>
+</body>
+</html>
